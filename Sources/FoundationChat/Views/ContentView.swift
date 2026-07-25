@@ -2,24 +2,35 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(ChatViewModel.self) private var viewModel
-    @Environment(\.openWindow) private var openWindow
     @State private var showInspector = true
     @State private var inspectorSection: InspectorSection = .generation
-    @State private var showClearConfirmation = false
 
     var body: some View {
         NavigationSplitView {
             SidebarView()
-                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
+                .navigationSplitViewColumnWidth(min: 230, ideal: 270, max: 340)
         } detail: {
             ChatView()
                 .navigationTitle(viewModel.selectedConversation?.title ?? "Foundation Chat")
                 .inspector(isPresented: $showInspector) {
                     SettingsInspectorView(selection: $inspectorSection)
-                        .inspectorColumnWidth(min: 300, ideal: 340, max: 420)
+                        .inspectorColumnWidth(min: 350, ideal: 380, max: 460)
                 }
         }
         .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button {
+                    viewModel.createNewConversation()
+                } label: {
+                    Label("Новый чат", systemImage: "square.and.pencil")
+                        .labelStyle(.iconOnly)
+                }
+                .buttonStyle(.glassProminent)
+                .buttonBorderShape(.circle)
+                .keyboardShortcut("n", modifiers: .command)
+                .help("Новый чат (⌘N)")
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showInspector.toggle()
@@ -27,21 +38,6 @@ struct ContentView: View {
                     Label("Параметры", systemImage: "sidebar.trailing")
                 }
                 .help("Показать или скрыть параметры (⌥⌘I)")
-            }
-
-            ToolbarItem {
-                Menu {
-                    Button("Очистить текущий чат", systemImage: "eraser") {
-                        showClearConfirmation = true
-                    }
-                    .disabled(viewModel.selectedConversation == nil)
-                    Divider()
-                    Button("О проекте", systemImage: "info.circle") {
-                        openWindow(id: "about")
-                    }
-                } label: {
-                    Label("Действия", systemImage: "ellipsis")
-                }
             }
         }
         .alert(
@@ -54,16 +50,6 @@ struct ContentView: View {
             Button("OK") { viewModel.dismissError() }
         } message: {
             Text(viewModel.errorMessage ?? "")
-        }
-        .confirmationDialog(
-            "Очистить текущий чат?",
-            isPresented: $showClearConfirmation
-        ) {
-            Button("Очистить", role: .destructive) {
-                viewModel.clearCurrentConversation()
-            }
-        } message: {
-            Text("Сообщения будут удалены без возможности восстановления.")
         }
     }
 }

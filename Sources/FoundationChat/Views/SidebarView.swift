@@ -2,14 +2,16 @@ import SwiftUI
 
 struct SidebarView: View {
     @Environment(ChatViewModel.self) private var viewModel
+    @Environment(\.openWindow) private var openWindow
     @State private var searchText = ""
     @State private var conversationPendingDeletion: Conversation?
     @State private var renameConversation: Conversation?
     @State private var renameText = ""
-    @State private var showNewFolder = false
-    @State private var folderName = ""
-    @State private var folderPendingRename: ChatFolder?
-    @State private var folderPendingDeletion: ChatFolder?
+    @State private var showNewProject = false
+    @State private var projectName = ""
+    @State private var projectPendingRename: ChatFolder?
+    @State private var projectPendingDeletion: ChatFolder?
+    @State private var expandedProjectIDs: Set<UUID> = []
 
     private var filteredConversations: [Conversation] {
         guard !searchText.isEmpty else { return viewModel.conversations }
@@ -22,93 +24,27 @@ struct SidebarView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        VStack(spacing: 0) {
-            HStack(spacing: 8) {
-                Button {
-                    viewModel.createNewConversation()
-                } label: {
-                    Label("Новый чат", systemImage: "square.and.pencil")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.glassProminent)
-                .keyboardShortcut("n", modifiers: .command)
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                VStack(spacing: 8) {
+                    searchField
 
-                Button {
-                    folderName = ""
-                    showNewFolder = true
-                } label: {
-                    Image(systemName: "folder.badge.plus")
+                    List(selection: $viewModel.selectedConversationID) {
+                        pinnedSection
+                        projectsSection
+                        chatsSection
+                    }
+                    .listStyle(.sidebar)
+                    .overlay { searchEmptyState }
                 }
-                .buttonStyle(.glass)
-                .help("Новая папка")
+                .padding(.bottom, 45)
+
+                aboutButton
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-
-            List(selection: $viewModel.selectedConversationID) {
-                let pinned = filteredConversations.filter(\.isPinned)
-                if !pinned.isEmpty {
-                    Section("Закреплённые") {
-                        ForEach(pinned) { conversationRow($0) }
-                    }
-                }
-
-                ForEach(viewModel.folders) { folder in
-                    Section {
-                        ForEach(filteredConversations.filter { $0.folderID == folder.id && !$0.isPinned }) {
-                            conversationRow($0)
-                        }
-                    } header: {
-                        HStack {
-                            Text(folder.name)
-                            Spacer()
-                            Menu {
-                                Button("Переименовать", systemImage: "pencil") {
-                                    folderName = folder.name
-                                    folderPendingRename = folder
-                                }
-                                Button("Удалить папку", systemImage: "trash", role: .destructive) {
-                                    folderPendingDeletion = folder
-                                }
-                            } label: {
-                                Image(systemName: "ellipsis")
-                            }
-                            .menuStyle(.borderlessButton)
-                            .menuIndicator(.hidden)
-                            .fixedSize()
-                        }
-                    }
-                }
-
-                let unfiled = filteredConversations.filter {
-                    $0.folderID == nil && !$0.isPinned
-                }
-                if !unfiled.isEmpty {
-                    Section("Чаты") {
-                        ForEach(unfiled) { conversationRow($0) }
-                    }
-                }
-            }
-            .listStyle(.sidebar)
-            .searchable(text: $searchText, placement: .sidebar, prompt: "Поиск")
-            .overlay {
-                if filteredConversations.isEmpty {
-                    ContentUnavailableView {
-                        Label(
-                            searchText.isEmpty ? "Нет чатов" : "Ничего не найдено",
-                            systemImage: searchText.isEmpty
-                                ? "bubble.left.and.bubble.right" : "magnifyingglass"
-                        )
-                    } description: {
-                        if searchText.isEmpty { Text("Создайте первый чат.") }
-                    }
-                }
-            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .clipped()
         }
-        .alert("Переименовать чат", isPresented: Binding(
-            get: { renameConversation != nil },
-            set: { if !$0 { renameConversation = nil } }
-        )) {
+        .alert("Переименовать чат", isPresented: renameConversationBinding) {
             TextField("Название", text: $renameText)
             Button("Отмена", role: .cancel) {}
             Button("Сохранить") {
@@ -117,43 +53,40 @@ struct SidebarView: View {
                 }
             }
         }
-        .alert("Новая папка", isPresented: $showNewFolder) {
-            TextField("Название", text: $folderName)
+        .alert("Новый проект", isPresented: $showNewProject) {
+            TextField("Название", text: $projectName)
             Button("Отмена", role: .cancel) {}
-            Button("Создать") { viewModel.createFolder(named: folderName) }
+            Button("Создать") {
+                viewModel.createFolder(named: projectName)
+            }
+        } message: {
+            Text("Проект объединяет связанные чаты в боковом меню.")
         }
-        .alert("Переименовать папку", isPresented: Binding(
-            get: { folderPendingRename != nil },
-            set: { if !$0 { folderPendingRename = nil } }
-        )) {
-            TextField("Название", text: $folderName)
+        .alert("Переименовать проект", isPresented: projectRenameBinding) {
+            TextField("Название", text: $projectName)
             Button("Отмена", role: .cancel) {}
             Button("Сохранить") {
-                if let id = folderPendingRename?.id {
-                    viewModel.renameFolder(id, to: folderName)
+                if let id = projectPendingRename?.id {
+                    viewModel.renameFolder(id, to: projectName)
                 }
             }
         }
         .confirmationDialog(
-            "Удалить папку «\(folderPendingDeletion?.name ?? "")»?",
-            isPresented: Binding(
-                get: { folderPendingDeletion != nil },
-                set: { if !$0 { folderPendingDeletion = nil } }
-            )
+            "Удалить проект «\(projectPendingDeletion?.name ?? "")»?",
+            isPresented: projectDeletionBinding
         ) {
-            Button("Удалить папку", role: .destructive) {
-                if let id = folderPendingDeletion?.id { viewModel.deleteFolder(id) }
-                folderPendingDeletion = nil
+            Button("Удалить проект", role: .destructive) {
+                if let id = projectPendingDeletion?.id {
+                    viewModel.deleteFolder(id)
+                }
+                projectPendingDeletion = nil
             }
         } message: {
             Text("Чаты останутся и переместятся в раздел «Чаты».")
         }
         .confirmationDialog(
             "Удалить «\(conversationPendingDeletion?.title ?? "")»?",
-            isPresented: Binding(
-                get: { conversationPendingDeletion != nil },
-                set: { if !$0 { conversationPendingDeletion = nil } }
-            )
+            isPresented: conversationDeletionBinding
         ) {
             Button("Удалить", role: .destructive) {
                 if let id = conversationPendingDeletion?.id {
@@ -164,6 +97,132 @@ struct SidebarView: View {
         } message: {
             Text("Чат будет удалён без возможности восстановления.")
         }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 7) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField("Поиск по чатам", text: $searchText)
+                .textFieldStyle(.plain)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+                .help("Очистить поиск")
+            }
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 6)
+        .background(.quaternary, in: .rect(cornerRadius: 8))
+        .padding(.horizontal, 10)
+        .accessibilityElement(children: .contain)
+    }
+
+    @ViewBuilder
+    private var pinnedSection: some View {
+        let pinned = filteredConversations.filter(\.isPinned)
+        if !pinned.isEmpty {
+            Section("Закреплённые") {
+                ForEach(pinned) { conversationRow($0) }
+            }
+        }
+    }
+
+    private var projectsSection: some View {
+        Section("Проекты") {
+            ForEach(viewModel.folders) { project in
+                DisclosureGroup(
+                    isExpanded: projectExpansionBinding(for: project.id)
+                ) {
+                    let conversations = filteredConversations.filter {
+                        $0.folderID == project.id && !$0.isPinned
+                    }
+                    if conversations.isEmpty {
+                        Text("В проекте пока нет чатов")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                            .padding(.vertical, 4)
+                    } else {
+                        ForEach(conversations) { conversationRow($0) }
+                    }
+                } label: {
+                    Label(project.name, systemImage: "folder")
+                        .lineLimit(1)
+                        .contextMenu { projectMenu(for: project) }
+                }
+                .padding(.leading, 8)
+            }
+
+            Button {
+                projectName = ""
+                showNewProject = true
+            } label: {
+                Label(
+                    viewModel.folders.isEmpty ? "Создать проект" : "Новый проект",
+                    systemImage: "folder.badge.plus"
+                )
+                .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Проекты объединяют связанные чаты")
+        }
+    }
+
+    @ViewBuilder
+    private var chatsSection: some View {
+        let unfiled = filteredConversations.filter {
+            $0.folderID == nil && !$0.isPinned
+        }
+        if !unfiled.isEmpty {
+            Section("Чаты") {
+                ForEach(unfiled) { conversationRow($0) }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var searchEmptyState: some View {
+        if filteredConversations.isEmpty && !searchText.isEmpty {
+            ContentUnavailableView.search(text: searchText)
+        } else if viewModel.conversations.isEmpty {
+            ContentUnavailableView {
+                Label("Нет чатов", systemImage: "bubble.left.and.bubble.right")
+            } description: {
+                Text("Создайте первый чат кнопкой выше.")
+            }
+        }
+    }
+
+    private var aboutButton: some View {
+        VStack(spacing: 0) {
+            Divider()
+            Button {
+                openWindow(id: "about")
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle")
+                        .frame(width: 16)
+                    Text("О проекте")
+                    Spacer()
+                }
+                    .contentShape(.rect)
+                    .padding(.leading, 24)
+                    .padding(.trailing, 16)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+            .padding(.vertical, 11)
+            .help("Версия, авторы и репозиторий GitHub")
+        }
+        .frame(maxWidth: .infinity)
+        .background(.bar)
     }
 
     @ViewBuilder
@@ -181,13 +240,13 @@ struct SidebarView: View {
                 ) {
                     viewModel.togglePinned(conversation.id)
                 }
-                Menu("Переместить", systemImage: "folder") {
-                    Button("Без папки") {
+                Menu("Переместить в проект", systemImage: "folder") {
+                    Button("Без проекта") {
                         viewModel.moveConversation(conversation.id, to: nil)
                     }
-                    ForEach(viewModel.folders) { folder in
-                        Button(folder.name) {
-                            viewModel.moveConversation(conversation.id, to: folder.id)
+                    ForEach(viewModel.folders) { project in
+                        Button(project.name) {
+                            viewModel.moveConversation(conversation.id, to: project.id)
                         }
                     }
                 }
@@ -196,6 +255,58 @@ struct SidebarView: View {
                     conversationPendingDeletion = conversation
                 }
             }
+    }
+
+    @ViewBuilder
+    private func projectMenu(for project: ChatFolder) -> some View {
+        Button("Переименовать проект", systemImage: "pencil") {
+            projectName = project.name
+            projectPendingRename = project
+        }
+        Button("Удалить проект", systemImage: "trash", role: .destructive) {
+            projectPendingDeletion = project
+        }
+    }
+
+    private func projectExpansionBinding(for id: UUID) -> Binding<Bool> {
+        Binding(
+            get: { expandedProjectIDs.contains(id) },
+            set: { isExpanded in
+                if isExpanded {
+                    expandedProjectIDs.insert(id)
+                } else {
+                    expandedProjectIDs.remove(id)
+                }
+            }
+        )
+    }
+
+    private var renameConversationBinding: Binding<Bool> {
+        Binding(
+            get: { renameConversation != nil },
+            set: { if !$0 { renameConversation = nil } }
+        )
+    }
+
+    private var projectRenameBinding: Binding<Bool> {
+        Binding(
+            get: { projectPendingRename != nil },
+            set: { if !$0 { projectPendingRename = nil } }
+        )
+    }
+
+    private var projectDeletionBinding: Binding<Bool> {
+        Binding(
+            get: { projectPendingDeletion != nil },
+            set: { if !$0 { projectPendingDeletion = nil } }
+        )
+    }
+
+    private var conversationDeletionBinding: Binding<Bool> {
+        Binding(
+            get: { conversationPendingDeletion != nil },
+            set: { if !$0 { conversationPendingDeletion = nil } }
+        )
     }
 }
 

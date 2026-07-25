@@ -25,7 +25,11 @@ Intelligence, а не универсальный LLM-клиент.
   `PrivateCloudComputeLanguageModel.Error`;
 - нативный SwiftUI-интерфейс macOS 27: sidebar чатов, правый Inspector с
   разделами «Генерация / Инструкции / Модели» и Liquid Glass composer;
-- папки, закрепление и переименование чатов;
+- нативный composer в обычной layout-иерархии без ручного позиционирования;
+- проекты, закрепление и переименование чатов;
+- welcome-экран с рабочими карточками для документов, Vision, guided
+  generation, Spotlight RAG и tool calling;
+- понятные объяснения для каждой настройки и Apple-only статусы моделей;
 - библиотека редактируемых prompts и адаптированный Siri AI community preset;
 - Vision attachments, drag & drop изображений и текстовых файлов;
 - `OCRTool`, `BarcodeReaderTool` и opt-in RAG через `SpotlightSearchTool`;
@@ -124,6 +128,12 @@ PCC entitlement. Ad-hoc подпись `-` годится для локальн�
 | Siri AI / App Intents | New Chat intent, Open Chat intent, Local/Cloud `AppEnum`, chat `AppEntity`, App Shortcuts |
 | fm CLI / Python SDK | Пока roadmap |
 
+Подробный разбор незакрытых направлений, практических сценариев и приоритетов
+первого публичного релиза находится в
+[Apple AI landscape 2026](docs/APPLE_AI_2026.md). Визуальные проблемы и
+результаты редизайна зафиксированы в
+[UI/UX-аудите macOS 27](docs/UI_UX_AUDIT_2026.md).
+
 Прямой personal context Siri, глобальная onscreen awareness и системный
 orchestrator не выдаются стороннему приложению как обычный Foundation Models
 API. Foundation Chat публикует собственные сущности и действия через App Intents
@@ -205,9 +215,11 @@ Sources/FoundationChat/
 │   └── ModelService.swift
 ├── ViewModels/ChatViewModel.swift
 └── Views/
+    ├── ComposerView.swift
     ├── ContentView.swift
     ├── SidebarView.swift
     ├── ChatView.swift
+    ├── WelcomeView.swift
     ├── MessageBubbleView.swift
     └── SettingsView.swift
 ```

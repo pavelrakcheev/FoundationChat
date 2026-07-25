@@ -22,12 +22,6 @@ struct FoundationChatApp: App {
             }
 
             CommandMenu("Чат") {
-                Button("Очистить текущий чат") {
-                    viewModel.clearCurrentConversation()
-                }
-                .keyboardShortcut("k", modifiers: [.command, .shift])
-                .disabled(viewModel.selectedConversation == nil)
-
                 Button("Остановить генерацию") {
                     viewModel.cancelGeneration()
                 }
