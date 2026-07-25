@@ -5,15 +5,15 @@ struct WelcomeView: View {
     let readiness: ModelReadiness
     let chooseSuggestion: (String) -> Void
 
-    private let suggestions = WelcomeSuggestion.all
+    private let suggestions = Array(WelcomeSuggestion.all.prefix(4))
     private let columns = [
-        GridItem(.flexible(minimum: 0), spacing: 10),
-        GridItem(.flexible(minimum: 0), spacing: 10)
+        GridItem(.fixed(170), spacing: 12),
+        GridItem(.fixed(170), spacing: 12)
     ]
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 22) {
+            VStack(spacing: 18) {
                 header
                 modelStatus
                 capabilities
@@ -22,8 +22,8 @@ struct WelcomeView: View {
             .frame(maxWidth: 720)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 28)
-            .padding(.top, 42)
-            .padding(.bottom, 30)
+            .padding(.top, 28)
+            .padding(.bottom, 20)
         }
     }
 
@@ -65,7 +65,7 @@ struct WelcomeView: View {
     }
 
     private var capabilities: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
+        LazyVGrid(columns: columns, spacing: 12) {
             ForEach(suggestions) { suggestion in
                 Button {
                     chooseSuggestion(suggestion.prompt)
@@ -98,8 +98,8 @@ struct WelcomeView: View {
                                 .foregroundStyle(.tertiary)
                         }
                     }
-                    .frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
-                    .padding(14)
+                    .frame(width: 138, height: 138, alignment: .topLeading)
+                    .padding(16)
                     .contentShape(.rect)
                 }
                 .buttonStyle(.plain)

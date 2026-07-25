@@ -1,9 +1,9 @@
 import SwiftUI
 
 enum InspectorSection: String, CaseIterable, Identifiable {
-    case generation = "Генерация"
+    case generation = "Ответ"
     case instructions = "Инструкции"
-    case models = "Модели"
+    case models = "Модель"
 
     var id: String { rawValue }
 
@@ -28,7 +28,6 @@ enum InspectorSection: String, CaseIterable, Identifiable {
 }
 
 struct SettingsInspectorView: View {
-    @Environment(ChatViewModel.self) private var viewModel
     @Binding var selection: InspectorSection
 
     var body: some View {

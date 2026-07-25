@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(ChatViewModel.self) private var viewModel
-    @State private var showInspector = true
+    @State private var showQuickSettings = false
+    @State private var showFullInspector = false
     @State private var inspectorSection: InspectorSection = .generation
 
     var body: some View {
@@ -12,7 +13,7 @@ struct ContentView: View {
         } detail: {
             ChatView()
                 .navigationTitle(viewModel.selectedConversation?.title ?? "Foundation Chat")
-                .inspector(isPresented: $showInspector) {
+                .inspector(isPresented: $showFullInspector) {
                     SettingsInspectorView(selection: $inspectorSection)
                         .inspectorColumnWidth(min: 350, ideal: 380, max: 460)
                 }
@@ -33,11 +34,28 @@ struct ContentView: View {
 
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    showInspector.toggle()
+                    if showFullInspector {
+                        showFullInspector = false
+                    }
+                    showQuickSettings.toggle()
                 } label: {
                     Label("Параметры", systemImage: "sidebar.trailing")
                 }
-                .help("Показать или скрыть параметры (⌥⌘I)")
+                .keyboardShortcut("i", modifiers: [.command, .option])
+                .help("Быстрые параметры (⌥⌘I)")
+                .popover(
+                    isPresented: $showQuickSettings,
+                    attachmentAnchor: .rect(.bounds),
+                    arrowEdge: .top
+                ) {
+                    QuickSettingsPopover(
+                        selection: $inspectorSection,
+                        fullInspectorPresented: $showFullInspector,
+                        closePopover: {
+                            showQuickSettings = false
+                        }
+                    )
+                }
             }
         }
         .alert(
