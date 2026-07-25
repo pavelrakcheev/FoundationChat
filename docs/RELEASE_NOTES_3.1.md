@@ -44,4 +44,5 @@ SHA-256:
 b63a08e1ba9226a2e97fada2e2ef057f84dd57995fa3606365bbe0c6ebb43a29
 ```
 
-Полный список изменений находится в [CHANGELOG.md](../CHANGELOG.md).
+Полный список изменений находится в
+[CHANGELOG.md](https://github.com/pavelrakcheev/FoundationChat/blob/main/CHANGELOG.md).
