@@ -7,6 +7,41 @@ Intelligence, а не универсальный LLM-клиент.
 > Проект использует beta API macOS 27 и Xcode 27. Интерфейсы и требования Apple
 > могут измениться до финального релиза.
 
+![Foundation Chat — быстрые параметры и welcome-экран](docs/audit/07-quick-settings-popover.png)
+
+## Скачать
+
+Готовый DMG для Apple silicon доступен на странице
+[GitHub Releases](https://github.com/pavelrakcheev/FoundationChat/releases).
+
+Требования:
+
+- macOS 27 beta;
+- Mac с Apple silicon и включённой Apple Intelligence;
+- язык и регион, поддерживаемые Apple Intelligence.
+
+Перетащите **Foundation Chat** из DMG в папку **Applications**. Текущая beta
+собрана с ad-hoc подписью, потому что публичная подпись Developer ID и
+нотариализация Apple для проекта пока не настроены. При первом запуске macOS
+может заблокировать приложение: откройте **System Settings → Privacy & Security**
+и выберите **Open Anyway** только если DMG скачан из официального репозитория.
+
+Private Cloud Compute в публичной ad-hoc сборке недоступен: для него Apple
+требует managed entitlement, подходящий provisioning profile и подписанную
+тестовую сборку.
+
+## Что нового в 3.1
+
+- компактные нативные параметры в popover из правой части toolbar;
+- быстрые вкладки «Ответ», «Инструкции» и «Модель»;
+- переход из popover в полный Inspector без одновременного показа двух панелей;
+- четыре квадратные карточки возможностей в центрированной сетке 2 × 2;
+- исправлена компоновка welcome-экрана и composer в окнах небольшой высоты;
+- сохранены Apple-only режимы Local и Private Cloud Compute;
+- добавлена воспроизводимая release-сборка и создание DMG.
+
+Полная история версии: [CHANGELOG.md](CHANGELOG.md).
+
 ## Что уже работает
 
 - Apple `SystemLanguageModel` полностью локально;
@@ -23,8 +58,8 @@ Intelligence, а не универсальный LLM-клиент.
 - сохранение истории и настроек локально через `UserDefaults`;
 - typed-диагностика `LanguageModelError`, `LanguageModelSession.Error` и
   `PrivateCloudComputeLanguageModel.Error`;
-- нативный SwiftUI-интерфейс macOS 27: sidebar чатов, правый Inspector с
-  разделами «Генерация / Инструкции / Модели» и Liquid Glass composer;
+- нативный SwiftUI-интерфейс macOS 27: sidebar чатов, компактный toolbar
+  popover, полный Inspector и Liquid Glass composer;
 - нативный composer в обычной layout-иерархии без ручного позиционирования;
 - проекты, закрепление и переименование чатов;
 - welcome-экран с рабочими карточками для документов, Vision, guided
@@ -193,12 +228,24 @@ cd FoundationChat
 Доступные режимы:
 
 ```bash
+./script/build_and_run.sh --build
 ./script/build_and_run.sh
 ./script/build_and_run.sh --verify
 ./script/build_and_run.sh --logs
 ./script/build_and_run.sh --telemetry
 ./script/build_and_run.sh --debug
 ```
+
+Release-сборка и DMG:
+
+```bash
+FOUNDATIONCHAT_BUILD_CONFIGURATION=release ./script/build_and_run.sh --build
+./script/create_dmg.sh
+```
+
+Для подписи Developer ID задайте `FOUNDATIONCHAT_SIGNING_IDENTITY` перед
+созданием DMG. Для PCC также потребуется
+`FOUNDATIONCHAT_PROVISIONING_PROFILE`.
 
 Старый `./build_and_run.sh` оставлен как совместимый wrapper. В Codex Desktop
 кнопка Run настроена через `.codex/environments/environment.toml`.
@@ -217,6 +264,7 @@ Sources/FoundationChat/
 └── Views/
     ├── ComposerView.swift
     ├── ContentView.swift
+    ├── QuickSettingsPopover.swift
     ├── SidebarView.swift
     ├── ChatView.swift
     ├── WelcomeView.swift

@@ -4,6 +4,12 @@ set -euo pipefail
 MODE="${1:-run}"
 APP_NAME="FoundationChat"
 BUNDLE_ID="dev.pavelrakcheev.FoundationChat"
+BUILD_CONFIGURATION="${FOUNDATIONCHAT_BUILD_CONFIGURATION:-debug}"
+
+if [[ "$BUILD_CONFIGURATION" != "debug" && "$BUILD_CONFIGURATION" != "release" ]]; then
+  echo "FOUNDATIONCHAT_BUILD_CONFIGURATION must be debug or release" >&2
+  exit 2
+fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
@@ -23,8 +29,13 @@ export DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p)}"
 
 pkill -x "$APP_NAME" >/dev/null 2>&1 || true
 
-xcrun swift build --package-path "$ROOT_DIR"
-BUILD_DIR="$(xcrun swift build --package-path "$ROOT_DIR" --show-bin-path)"
+xcrun swift build --package-path "$ROOT_DIR" -c "$BUILD_CONFIGURATION"
+BUILD_DIR="$(
+  xcrun swift build \
+    --package-path "$ROOT_DIR" \
+    -c "$BUILD_CONFIGURATION" \
+    --show-bin-path
+)"
 BUILD_BINARY="$BUILD_DIR/$APP_NAME"
 
 rm -rf "$APP_BUNDLE"
@@ -92,6 +103,8 @@ open_app() {
 }
 
 case "$MODE" in
+  --build|build)
+    ;;
   run)
     open_app
     ;;
@@ -112,7 +125,7 @@ case "$MODE" in
     pgrep -x "$APP_NAME" >/dev/null
     ;;
   *)
-    echo "usage: $0 [run|--debug|--logs|--telemetry|--verify]" >&2
+    echo "usage: $0 [build|run|--debug|--logs|--telemetry|--verify]" >&2
     exit 2
     ;;
 esac
