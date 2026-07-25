@@ -60,4 +60,47 @@ struct ChatModelsTests {
         #expect(!ModelType.systemOnDevice.supportsReasoning)
         #expect(ModelType.privateCloudCompute.supportsReasoning)
     }
+
+    @Test
+    func legacyConversationDecodesWithFolderAndPinDefaults() throws {
+        let id = UUID()
+        let date = Date(timeIntervalSince1970: 100)
+        let legacy: [String: Any] = [
+            "id": id.uuidString,
+            "title": "Legacy",
+            "messages": [],
+            "createdAt": date.timeIntervalSinceReferenceDate,
+            "updatedAt": date.timeIntervalSinceReferenceDate,
+            "modelType": ModelType.systemOnDevice.rawValue
+        ]
+        let data = try JSONSerialization.data(withJSONObject: legacy)
+        let decoded = try JSONDecoder().decode(Conversation.self, from: data)
+
+        #expect(decoded.folderID == nil)
+        #expect(!decoded.isPinned)
+    }
+
+    @Test
+    func generationMetricsCalculateVisibleTokenSpeed() {
+        let metrics = GenerationMetrics(
+            outputTokens: 120,
+            reasoningTokens: 20,
+            duration: 2,
+            reasoning: "Проверка"
+        )
+        #expect(metrics.tokensPerSecond == 50)
+    }
+
+    @Test
+    func bundledPromptLibraryContainsAppleOnlyResearchPresets() {
+        let state = PersistedAppState(
+            conversations: [],
+            selectedConversationID: nil,
+            selectedModel: .local,
+            settings: GenerationSettings()
+        )
+        #expect(state.promptPresets.contains(where: { $0.id == PromptPreset.standard.id }))
+        #expect(state.promptPresets.contains(where: { $0.id == PromptPreset.siriCommunity.id }))
+        #expect(ModelType.allCases.count == 2)
+    }
 }

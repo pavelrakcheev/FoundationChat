@@ -8,10 +8,10 @@ struct FoundationChatApp: App {
         WindowGroup {
             ContentView()
                 .environment(viewModel)
-                .frame(minWidth: 900, minHeight: 580)
+                .frame(minWidth: 1120, minHeight: 640)
                 .task { await viewModel.checkAvailability() }
         }
-        .defaultSize(width: 1180, height: 760)
+        .defaultSize(width: 1320, height: 820)
         .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(replacing: .newItem) {
@@ -51,9 +51,9 @@ struct FoundationChatApp: App {
             }
         }
 
-        Settings {
-            SettingsView()
-                .environment(viewModel)
+        Window("О Foundation Chat", id: "about") {
+            AboutProjectView()
         }
+        .windowResizability(.contentSize)
     }
 }

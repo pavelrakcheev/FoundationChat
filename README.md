@@ -23,9 +23,19 @@ Intelligence, а не универсальный LLM-клиент.
 - сохранение истории и настроек локально через `UserDefaults`;
 - typed-диагностика `LanguageModelError`, `LanguageModelSession.Error` и
   `PrivateCloudComputeLanguageModel.Error`;
-- нативный SwiftUI-интерфейс macOS 27: системный sidebar, toolbar, отдельное
-  окно Settings и Liquid Glass composer;
-- Icon Composer-иконка из `Resources/AppIcon.icon`.
+- нативный SwiftUI-интерфейс macOS 27: sidebar чатов, правый Inspector с
+  разделами «Генерация / Инструкции / Модели» и Liquid Glass composer;
+- папки, закрепление и переименование чатов;
+- библиотека редактируемых prompts и адаптированный Siri AI community preset;
+- Vision attachments, drag & drop изображений и текстовых файлов;
+- `OCRTool`, `BarcodeReaderTool` и opt-in RAG через `SpotlightSearchTool`;
+- reasoning transcript, точная скорость генерации TK/s и raw JSON guided output;
+- контекстное «Уточнить» для выделенного фрагмента ответа;
+- smoke evaluations, tool-call журнал, privacy-safe diagnostics и
+  `logFeedbackAttachment`;
+- App Intents, App Entity чата и Siri/Shortcuts actions;
+- адаптивная Icon Composer-иконка: `actool` сохраняет Default, Dark, Tinted и
+  Clear renditions в `Assets.car`.
 
 ## Какие модели доступны
 
@@ -99,30 +109,25 @@ export FOUNDATIONCHAT_PROVISIONING_PROFILE="/absolute/path/to/profile.provisionp
 PCC entitlement. Ad-hoc подпись `-` годится для локального запуска UI, но не
 даёт доступ к PCC.
 
-## Чего пока нет из WWDC26
+## WWDC26 lab: статус
 
-Приоритетный roadmap:
+| Направление | Статус в v3 |
+|---|---|
+| Vision input | Реальные `Attachment(imageURL:)`, open panel и drag & drop; UI заранее проверяет `.vision` capability |
+| System tools | Реальные `OCRTool`, `BarcodeReaderTool`, opt-in `SpotlightSearchTool` |
+| Dynamic Profiles | Инструкции, tools, Local/Cloud и reasoning меняются без удаления сохранённого transcript; полный редактор правил автопереключения остаётся roadmap |
+| Tool calling lab | Журнал имени и raw arguments; изменяющие систему tools намеренно не зарегистрированы, поэтому approval UI пока не требуется |
+| Guided generation | `@Generable` schema и raw JSON в чате; произвольный визуальный schema editor остаётся roadmap |
+| Evaluations | Встроенный smoke suite с pass/fail, latency и фактическим output; regression dashboard остаётся roadmap |
+| Instruments | Кнопка запуска Instruments и privacy-safe diagnostic JSON |
+| Feedback attachments | Экспорт Apple `logFeedbackAttachment`; приложение само ничего не отправляет |
+| Siri AI / App Intents | New Chat intent, Open Chat intent, Local/Cloud `AppEnum`, chat `AppEntity`, App Shortcuts |
+| fm CLI / Python SDK | Пока roadmap |
 
-1. **Vision input** — drag & drop изображений и prompt attachments для новой
-   vision-capability on-device модели.
-2. **System tools** — `OCRTool`, `BarcodeReaderTool` и локальный RAG через Core
-   Spotlight.
-3. **Dynamic Profiles** — автоматическое переключение инструкций, tools,
-   System/PCC и reasoning без потери transcript.
-4. **Tool calling lab** — UI для регистрации инструментов, просмотра вызовов и
-   подтверждения опасных действий.
-5. **Guided generation** — редактор `GenerationSchema` / `@Generable` и
-   просмотр raw JSON.
-6. **Evaluations** — наборы тестов prompt/output, метрики, сравнение профилей и
-   regression dashboard.
-7. **Foundation Models Instruments** — переходы из приложения к trace и
-   экспорт диагностических данных.
-8. **Feedback attachments** — `logFeedbackAttachment` без отправки приватных
-   данных по умолчанию.
-9. **Siri AI / App Intents** — App Entities для чатов, Spotlight indexing,
-   App Schemas, onscreen awareness и AppIntentsTesting.
-10. **fm CLI и Python SDK** — экспорт transcript/prompt для воспроизводимых
-    экспериментов вне GUI.
+Прямой personal context Siri, глобальная onscreen awareness и системный
+orchestrator не выдаются стороннему приложению как обычный Foundation Models
+API. Foundation Chat публикует собственные сущности и действия через App Intents
+и не имитирует недоступные системные возможности.
 
 Apple описывает эти направления в
 [WWDC26 Foundation Models](https://developer.apple.com/videos/play/wwdc2026/241/),
@@ -196,6 +201,7 @@ Sources/FoundationChat/
 ├── Models/ChatModels.swift
 ├── Services/
 │   ├── AppStateStore.swift
+│   ├── AppIntentsService.swift
 │   └── ModelService.swift
 ├── ViewModels/ChatViewModel.swift
 └── Views/

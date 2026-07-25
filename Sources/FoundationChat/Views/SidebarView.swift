@@ -4,77 +4,149 @@ struct SidebarView: View {
     @Environment(ChatViewModel.self) private var viewModel
     @State private var searchText = ""
     @State private var conversationPendingDeletion: Conversation?
+    @State private var renameConversation: Conversation?
+    @State private var renameText = ""
+    @State private var showNewFolder = false
+    @State private var folderName = ""
+    @State private var folderPendingRename: ChatFolder?
+    @State private var folderPendingDeletion: ChatFolder?
 
     private var filteredConversations: [Conversation] {
         guard !searchText.isEmpty else { return viewModel.conversations }
         return viewModel.conversations.filter {
             $0.title.localizedStandardContains(searchText)
-                || $0.messages.contains {
-                    $0.content.localizedStandardContains(searchText)
-                }
+                || $0.messages.contains { $0.content.localizedStandardContains(searchText) }
         }
     }
 
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        GeometryReader { geometry in
-            let footerHeight: CGFloat = viewModel.selectedConversation == nil
-                ? 76
-                : 112
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                Button {
+                    viewModel.createNewConversation()
+                } label: {
+                    Label("Новый чат", systemImage: "square.and.pencil")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glassProminent)
+                .keyboardShortcut("n", modifiers: .command)
+
+                Button {
+                    folderName = ""
+                    showNewFolder = true
+                } label: {
+                    Image(systemName: "folder.badge.plus")
+                }
+                .buttonStyle(.glass)
+                .help("Новая папка")
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
 
             List(selection: $viewModel.selectedConversationID) {
-                Section("Чаты") {
-                    ForEach(filteredConversations) { conversation in
-                        ConversationRow(conversation: conversation)
-                            .tag(conversation.id)
-                            .contextMenu {
-                                Button("Удалить", systemImage: "trash", role: .destructive) {
-                                    conversationPendingDeletion = conversation
+                let pinned = filteredConversations.filter(\.isPinned)
+                if !pinned.isEmpty {
+                    Section("Закреплённые") {
+                        ForEach(pinned) { conversationRow($0) }
+                    }
+                }
+
+                ForEach(viewModel.folders) { folder in
+                    Section {
+                        ForEach(filteredConversations.filter { $0.folderID == folder.id && !$0.isPinned }) {
+                            conversationRow($0)
+                        }
+                    } header: {
+                        HStack {
+                            Text(folder.name)
+                            Spacer()
+                            Menu {
+                                Button("Переименовать", systemImage: "pencil") {
+                                    folderName = folder.name
+                                    folderPendingRename = folder
                                 }
+                                Button("Удалить папку", systemImage: "trash", role: .destructive) {
+                                    folderPendingDeletion = folder
+                                }
+                            } label: {
+                                Image(systemName: "ellipsis")
                             }
+                            .menuStyle(.borderlessButton)
+                            .menuIndicator(.hidden)
+                            .fixedSize()
+                        }
+                    }
+                }
+
+                let unfiled = filteredConversations.filter {
+                    $0.folderID == nil && !$0.isPinned
+                }
+                if !unfiled.isEmpty {
+                    Section("Чаты") {
+                        ForEach(unfiled) { conversationRow($0) }
                     }
                 }
             }
             .listStyle(.sidebar)
-            .searchable(
-                text: $searchText,
-                placement: .sidebar,
-                prompt: "Поиск по чатам"
-            )
+            .searchable(text: $searchText, placement: .sidebar, prompt: "Поиск")
             .overlay {
                 if filteredConversations.isEmpty {
                     ContentUnavailableView {
                         Label(
                             searchText.isEmpty ? "Нет чатов" : "Ничего не найдено",
                             systemImage: searchText.isEmpty
-                                ? "bubble.left.and.bubble.right"
-                                : "magnifyingglass"
+                                ? "bubble.left.and.bubble.right" : "magnifyingglass"
                         )
                     } description: {
-                        if searchText.isEmpty {
-                            Text("Создайте чат кнопкой в панели инструментов.")
-                        }
+                        if searchText.isEmpty { Text("Создайте первый чат.") }
                     }
                 }
             }
-            .frame(
-                width: geometry.size.width,
-                height: max(0, geometry.size.height - footerHeight)
+        }
+        .alert("Переименовать чат", isPresented: Binding(
+            get: { renameConversation != nil },
+            set: { if !$0 { renameConversation = nil } }
+        )) {
+            TextField("Название", text: $renameText)
+            Button("Отмена", role: .cancel) {}
+            Button("Сохранить") {
+                if let id = renameConversation?.id {
+                    viewModel.renameConversation(id, to: renameText)
+                }
+            }
+        }
+        .alert("Новая папка", isPresented: $showNewFolder) {
+            TextField("Название", text: $folderName)
+            Button("Отмена", role: .cancel) {}
+            Button("Создать") { viewModel.createFolder(named: folderName) }
+        }
+        .alert("Переименовать папку", isPresented: Binding(
+            get: { folderPendingRename != nil },
+            set: { if !$0 { folderPendingRename = nil } }
+        )) {
+            TextField("Название", text: $folderName)
+            Button("Отмена", role: .cancel) {}
+            Button("Сохранить") {
+                if let id = folderPendingRename?.id {
+                    viewModel.renameFolder(id, to: folderName)
+                }
+            }
+        }
+        .confirmationDialog(
+            "Удалить папку «\(folderPendingDeletion?.name ?? "")»?",
+            isPresented: Binding(
+                get: { folderPendingDeletion != nil },
+                set: { if !$0 { folderPendingDeletion = nil } }
             )
-            .position(
-                x: geometry.size.width / 2,
-                y: max(0, geometry.size.height - footerHeight) / 2
-            )
-
-            ModelStatusFooter()
-                .frame(width: geometry.size.width)
-                .frame(height: footerHeight)
-                .position(
-                    x: geometry.size.width / 2,
-                    y: max(footerHeight / 2, geometry.size.height - footerHeight / 2)
-                )
-                .zIndex(1)
+        ) {
+            Button("Удалить папку", role: .destructive) {
+                if let id = folderPendingDeletion?.id { viewModel.deleteFolder(id) }
+                folderPendingDeletion = nil
+            }
+        } message: {
+            Text("Чаты останутся и переместятся в раздел «Чаты».")
         }
         .confirmationDialog(
             "Удалить «\(conversationPendingDeletion?.title ?? "")»?",
@@ -93,78 +165,37 @@ struct SidebarView: View {
             Text("Чат будет удалён без возможности восстановления.")
         }
     }
-}
-
-private struct ModelStatusFooter: View {
-    @Environment(ChatViewModel.self) private var viewModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Image(systemName: viewModel.modelType.iconName)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 16)
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(viewModel.modelType.displayName)
-                        .font(.caption.weight(.medium))
-                        .lineLimit(1)
-                    Text(viewModel.currentReadiness.detail)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-
-                Spacer(minLength: 4)
-
-                statusIndicator
-            }
-
-            if viewModel.selectedConversation != nil {
-                ProgressView(value: viewModel.contextInfo.usageRatio)
-                    .tint(contextColor)
-                    .controlSize(.mini)
-
-                HStack {
-                    Text(tokenLabel)
-                    Spacer()
-                    Text(viewModel.contextInfo.isExact ? "точно" : "оценка")
-                }
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-            }
-        }
-        .padding(12)
-        .background(.bar)
-    }
 
     @ViewBuilder
-    private var statusIndicator: some View {
-        switch viewModel.currentReadiness.state {
-        case .checking:
-            ProgressView()
-                .controlSize(.mini)
-        case .ready:
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-        case .requiresSetup:
-            Image(systemName: "exclamationmark.circle.fill")
-                .foregroundStyle(.orange)
-        case .unavailable:
-            Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
-        }
-    }
-
-    private var tokenLabel: String {
-        "\(viewModel.contextInfo.usedTokens.formatted()) / \(viewModel.contextInfo.contextLimit.formatted()) токенов"
-    }
-
-    private var contextColor: Color {
-        let ratio = viewModel.contextInfo.usageRatio
-        if ratio > 0.85 { return .red }
-        if ratio > 0.65 { return .orange }
-        return .green
+    private func conversationRow(_ conversation: Conversation) -> some View {
+        ConversationRow(conversation: conversation)
+            .tag(conversation.id)
+            .contextMenu {
+                Button("Переименовать", systemImage: "pencil") {
+                    renameText = conversation.title
+                    renameConversation = conversation
+                }
+                Button(
+                    conversation.isPinned ? "Открепить" : "Закрепить",
+                    systemImage: conversation.isPinned ? "pin.slash" : "pin"
+                ) {
+                    viewModel.togglePinned(conversation.id)
+                }
+                Menu("Переместить", systemImage: "folder") {
+                    Button("Без папки") {
+                        viewModel.moveConversation(conversation.id, to: nil)
+                    }
+                    ForEach(viewModel.folders) { folder in
+                        Button(folder.name) {
+                            viewModel.moveConversation(conversation.id, to: folder.id)
+                        }
+                    }
+                }
+                Divider()
+                Button("Удалить", systemImage: "trash", role: .destructive) {
+                    conversationPendingDeletion = conversation
+                }
+            }
     }
 }
 
@@ -172,24 +203,20 @@ private struct ConversationRow: View {
     let conversation: Conversation
 
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: conversation.modelType.iconName)
-                .foregroundStyle(.secondary)
-                .frame(width: 16, height: 18)
-
+        HStack(spacing: 7) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(conversation.title)
                     .font(.body.weight(.medium))
                     .lineLimit(1)
-
-                HStack(spacing: 5) {
-                    Text(conversation.modelType.shortName)
-                    Text("·")
-                    Text(conversation.updatedAt, format: .relative(presentation: .named))
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+                Text(conversation.modelType.shortName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 4)
+            if conversation.isPinned {
+                Image(systemName: "pin.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
         }
         .padding(.vertical, 2)

@@ -2,52 +2,31 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(ChatViewModel.self) private var viewModel
+    @Environment(\.openWindow) private var openWindow
+    @State private var showInspector = true
+    @State private var inspectorSection: InspectorSection = .generation
     @State private var showClearConfirmation = false
 
     var body: some View {
         NavigationSplitView {
             SidebarView()
-                .navigationSplitViewColumnWidth(min: 230, ideal: 280, max: 360)
+                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
         } detail: {
             ChatView()
                 .navigationTitle(viewModel.selectedConversation?.title ?? "Foundation Chat")
+                .inspector(isPresented: $showInspector) {
+                    SettingsInspectorView(selection: $inspectorSection)
+                        .inspectorColumnWidth(min: 300, ideal: 340, max: 420)
+                }
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    viewModel.createNewConversation()
+                    showInspector.toggle()
                 } label: {
-                    Label("Новый чат", systemImage: "square.and.pencil")
+                    Label("Параметры", systemImage: "sidebar.trailing")
                 }
-                .help("Новый чат (⌘N)")
-            }
-
-            ToolbarSpacer(.fixed)
-
-            ToolbarItem {
-                Menu {
-                    ForEach(ModelType.allCases) { type in
-                        Button {
-                            viewModel.selectModel(type)
-                        } label: {
-                            Label {
-                                VStack(alignment: .leading) {
-                                    Text(type.displayName)
-                                    Text(type.description)
-                                }
-                            } icon: {
-                                Image(systemName: type.iconName)
-                            }
-                        }
-                    }
-                } label: {
-                    Label(
-                        viewModel.modelType.shortName,
-                        systemImage: viewModel.modelType.iconName
-                    )
-                }
-                .disabled(viewModel.isProcessing)
-                .help("Выбрать модель")
+                .help("Показать или скрыть параметры (⌥⌘I)")
             }
 
             ToolbarItem {
@@ -56,11 +35,9 @@ struct ContentView: View {
                         showClearConfirmation = true
                     }
                     .disabled(viewModel.selectedConversation == nil)
-
                     Divider()
-
-                    SettingsLink {
-                        Label("Настройки…", systemImage: "gearshape")
+                    Button("О проекте", systemImage: "info.circle") {
+                        openWindow(id: "about")
                     }
                 } label: {
                     Label("Действия", systemImage: "ellipsis")

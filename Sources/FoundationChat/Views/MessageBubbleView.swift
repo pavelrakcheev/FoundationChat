@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct MessageBubbleView: View {
+    @Environment(ChatViewModel.self) private var viewModel
     let message: Message
     let modelName: String
+    let onQuote: (String) -> Void
 
     var body: some View {
         Group {
@@ -16,6 +18,19 @@ struct MessageBubbleView: View {
             }
         }
         .contextMenu {
+            if message.role == .assistant {
+                Button("Уточнить", systemImage: "quote.bubble") {
+                    onQuote(selectedText() ?? message.content)
+                }
+                Menu("Feedback attachment", systemImage: "paperclip.badge.ellipsis") {
+                    Button("Положительный", systemImage: "hand.thumbsup") {
+                        viewModel.exportFeedback(for: message, positive: true)
+                    }
+                    Button("Отрицательный", systemImage: "hand.thumbsdown") {
+                        viewModel.exportFeedback(for: message, positive: false)
+                    }
+                }
+            }
             Button("Копировать", systemImage: "doc.on.doc") {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(message.content, forType: .string)
@@ -28,7 +43,10 @@ struct MessageBubbleView: View {
         HStack(alignment: .top) {
             Spacer(minLength: 110)
 
-            VStack(alignment: .trailing, spacing: 5) {
+            VStack(alignment: .trailing, spacing: 6) {
+                if !message.attachments.isEmpty {
+                    AttachmentChips(attachments: message.attachments)
+                }
                 Text(message.content)
                     .textSelection(.enabled)
                     .foregroundStyle(.white)
@@ -36,34 +54,12 @@ struct MessageBubbleView: View {
                     .padding(.vertical, 9)
                     .background(.tint)
                     .clipShape(.rect(cornerRadius: 16))
-
-                Text(message.createdAt, style: .time)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
             }
         }
     }
 
     private var assistantMessage: some View {
-        HStack(alignment: .top, spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(.tint.opacity(0.12))
-                Image(systemName: "apple.intelligence")
-                    .font(.body)
-                    .foregroundStyle(.tint)
-            }
-            .frame(width: 30, height: 30)
-
-            VStack(alignment: .leading, spacing: 7) {
-                HStack(spacing: 6) {
-                    Text(modelName)
-                        .font(.caption.weight(.semibold))
-                    Text(message.createdAt, style: .time)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-
+        VStack(alignment: .leading, spacing: 8) {
                 if message.content.isEmpty {
                     HStack(spacing: 7) {
                         ProgressView()
@@ -76,9 +72,12 @@ struct MessageBubbleView: View {
                     RichMarkdownView(message.content)
                         .textSelection(.enabled)
                 }
+
+                if let metrics = message.metrics {
+                    ResponseMetricsView(metrics: metrics)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-        }
     }
 
     private var errorMessage: some View {
@@ -104,6 +103,67 @@ struct MessageBubbleView: View {
             }
 
             Spacer(minLength: 40)
+        }
+    }
+
+    private func selectedText() -> String? {
+        guard let textView = NSApp.keyWindow?.firstResponder as? NSTextView else { return nil }
+        let range = textView.selectedRange()
+        guard range.length > 0, range.location != NSNotFound,
+              let swiftRange = Range(range, in: textView.string) else { return nil }
+        return String(textView.string[swiftRange])
+    }
+}
+
+private struct AttachmentChips: View {
+    let attachments: [ChatAttachment]
+
+    var body: some View {
+        HStack {
+            ForEach(attachments) { attachment in
+                Label(
+                    attachment.name,
+                    systemImage: attachment.kind == .image ? "photo" : "doc"
+                )
+                .font(.caption)
+                .lineLimit(1)
+                .padding(.horizontal, 9)
+                .padding(.vertical, 6)
+                .glassEffect(.regular, in: .capsule)
+            }
+        }
+    }
+}
+
+private struct ResponseMetricsView: View {
+    @Environment(ChatViewModel.self) private var viewModel
+    let metrics: GenerationMetrics
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            if viewModel.settings.showReasoning,
+               let reasoning = metrics.reasoning,
+               !reasoning.isEmpty {
+                DisclosureGroup("Рассуждение · \(metrics.reasoningTokens) токенов") {
+                    Text(reasoning)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .padding(.top, 4)
+                }
+                .font(.caption)
+            }
+
+            if viewModel.settings.showTokenSpeed {
+                HStack(spacing: 5) {
+                    Image(systemName: "gauge.with.dots.needle.33percent")
+                    Text("\(metrics.tokensPerSecond, format: .number.precision(.fractionLength(1))) TK/s")
+                    Text("·")
+                    Text("\(metrics.outputTokens) токенов")
+                }
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            }
         }
     }
 }

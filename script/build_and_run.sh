@@ -15,7 +15,6 @@ APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
 ENTITLEMENTS="$ROOT_DIR/Resources/FoundationChat.entitlements"
 ICON_SOURCE="$ROOT_DIR/Resources/AppIcon.icon"
-GENERATED_ICON="$ROOT_DIR/Resources/AppIcon.icns"
 
 if [[ -d "/Applications/Xcode-beta.app/Contents/Developer" ]]; then
   export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode-beta.app/Contents/Developer}"
@@ -35,41 +34,41 @@ chmod +x "$APP_BINARY"
 cp "$ROOT_DIR/Resources/Info.plist" "$INFO_PLIST"
 
 if [[ -d "$ICON_SOURCE" ]]; then
-  XCODE_CONTENTS_DIR="$(dirname "$DEVELOPER_DIR")"
-  ICTOOL="$XCODE_CONTENTS_DIR/Applications/Icon Composer.app/Contents/Executables/ictool"
-  if [[ -x "$ICTOOL" ]]; then
-    ICONSET_DIR="$DIST_DIR/AppIcon.iconset"
-    rm -rf "$ICONSET_DIR"
-    mkdir -p "$ICONSET_DIR"
-
-    for size in 16 32 128 256 512; do
-      "$ICTOOL" "$ICON_SOURCE" \
-        --export-image \
-        --output-file "$ICONSET_DIR/icon_${size}x${size}.png" \
-        --platform macOS \
-        --rendition Default \
-        --width "$size" \
-        --height "$size" \
-        --scale 1 \
-        --design-generation 27 >/dev/null
-      "$ICTOOL" "$ICON_SOURCE" \
-        --export-image \
-        --output-file "$ICONSET_DIR/icon_${size}x${size}@2x.png" \
-        --platform macOS \
-        --rendition Default \
-        --width "$size" \
-        --height "$size" \
-        --scale 2 \
-        --design-generation 27 >/dev/null
-    done
-
-    iconutil --convert icns --output "$GENERATED_ICON" "$ICONSET_DIR"
-  fi
+  ICON_ASSET_DIR="$(mktemp -d "$DIST_DIR/IconAssets.XXXXXX")"
+  xcrun actool "$ICON_SOURCE" \
+    --compile "$ICON_ASSET_DIR" \
+    --platform macosx \
+    --minimum-deployment-target 27.0 \
+    --app-icon AppIcon \
+    --output-partial-info-plist "$ICON_ASSET_DIR/icon-info.plist" \
+    --warnings \
+    --notices \
+    --output-format human-readable-text
+  cp "$ICON_ASSET_DIR/AppIcon.icns" "$APP_RESOURCES/AppIcon.icns"
+  cp "$ICON_ASSET_DIR/Assets.car" "$APP_RESOURCES/Assets.car"
 fi
 
-if [[ -f "$GENERATED_ICON" ]]; then
-  cp "$GENERATED_ICON" "$APP_RESOURCES/AppIcon.icns"
-fi
+INTENTS_TEMP_DIR="$(mktemp -d "$DIST_DIR/AppIntents.XXXXXX")"
+find "$ROOT_DIR/Sources/FoundationChat" -name '*.swift' -print \
+  >"$INTENTS_TEMP_DIR/sources.list"
+find "$ROOT_DIR/.build" -name '*.swiftconstvalues' \
+  -path '*FoundationChat-p.build*' -print \
+  >"$INTENTS_TEMP_DIR/const-values.list"
+XCODE_BUILD_VERSION="$(xcodebuild -version | awk '/Build version/{print $3}')"
+SDK_ROOT="$(xcrun --sdk macosx --show-sdk-path)"
+xcrun appintentsmetadataprocessor \
+  --output "$APP_RESOURCES" \
+  --toolchain-dir "$DEVELOPER_DIR/Toolchains/XcodeDefault.xctoolchain" \
+  --module-name "$APP_NAME" \
+  --sdk-root "$SDK_ROOT" \
+  --xcode-version "$XCODE_BUILD_VERSION" \
+  --platform-family macOS \
+  --deployment-target 27.0 \
+  --target-triple arm64-apple-macos27.0 \
+  --source-file-list "$INTENTS_TEMP_DIR/sources.list" \
+  --swift-const-vals-list "$INTENTS_TEMP_DIR/const-values.list" \
+  --force \
+  --force-metadata-output
 
 if [[ -n "${FOUNDATIONCHAT_PROVISIONING_PROFILE:-}" ]]; then
   cp "$FOUNDATIONCHAT_PROVISIONING_PROFILE" "$APP_CONTENTS/embedded.provisionprofile"
