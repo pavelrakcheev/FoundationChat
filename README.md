@@ -4,8 +4,8 @@
 Models. Это полигон для проверки реальных возможностей и ограничений Apple
 Intelligence, а не универсальный LLM-клиент.
 
-> Проект использует beta API macOS 27 и Xcode 27. Интерфейсы и требования Apple
-> могут измениться до финального релиза.
+> Проект использует beta API iOS 27, macOS 27 и Xcode 27. Интерфейсы и
+> требования Apple могут измениться до финального релиза.
 
 ![Foundation Chat — быстрые параметры и welcome-экран](docs/audit/07-quick-settings-popover.png)
 
@@ -30,6 +30,30 @@ Private Cloud Compute в публичной ad-hoc сборке недоступ
 требует managed entitlement, подходящий provisioning profile и подписанную
 тестовую сборку.
 
+Мобильная версия собирается из исходников в Xcode 27. Для запуска на физическом
+iPhone нужны iOS 27, устройство с поддержкой Apple Intelligence, включённая
+Apple Intelligence и загруженная системная модель.
+
+Готовой публичной IPA/TestFlight-сборки пока нет. Development-сборка
+устанавливается из Xcode и подписывается вашей командой разработчика.
+
+## Что нового в 3.2
+
+- добавлено нативное приложение для iPhone и iPad на SwiftUI;
+- Local на iOS использует Apple `SystemLanguageModel.default` прямо на
+  устройстве, без внешнего API и без загрузки сторонних моделей;
+- мобильная навигация построена на `NavigationStack`, настройки открываются
+  отдельным sheet, а composer учитывает клавиатуру и safe area;
+- мобильные параметры приведены к структуре desktop Inspector: контекст,
+  генерация, reasoning, tools, evaluations, prompts, модели и диагностика;
+- поддержаны создание и управление проектами, перемещение и закрепление чатов,
+  вложения, prompts, Markdown и общая история;
+- карточки возможностей показывают описания и badges, а Liquid Glass composer
+  использует единый размер controls без отдельной фоновой панели;
+- добавлена адаптивная Icon Composer-иконка для iPhone и iPad;
+- добавлены Xcode-проект, воспроизводимый iOS build-скрипт и UI-тест реальной
+  локальной генерации.
+
 ## Что нового в 3.1
 
 - компактные нативные параметры в popover из правой части toolbar;
@@ -41,6 +65,26 @@ Private Cloud Compute в публичной ad-hoc сборке недоступ
 - добавлена воспроизводимая release-сборка и создание DMG.
 
 Полная история версии: [CHANGELOG.md](CHANGELOG.md).
+
+## Поддерживаемые платформы
+
+| Возможность | macOS 27 | iOS/iPadOS 27 |
+|---|---|---|
+| Apple `SystemLanguageModel` Local | Да, полностью на Mac | Да, полностью на iPhone/iPad |
+| Private Cloud Compute | При наличии managed entitlement | При наличии managed entitlement |
+| Потоковый чат и Markdown | Да | Да |
+| Изображения и файловые вложения | Да | Да |
+| Проекты, закрепление и поиск | Да | Да |
+| Библиотека и редактор промптов | Да | Да |
+| Контекст, TK/s, reasoning и guided JSON | Да | Да, если поддерживает модель |
+| Evaluations и privacy-safe diagnostics | Да | Да |
+| `OCRTool` и `BarcodeReaderTool` | Да | Через Vision-вложения; system tools отсутствуют в текущем iOS SDK |
+| Spotlight RAG | Да | Нет, API доступен только на Mac |
+| Foundation Models Instruments | Запускается локально | Переход выполняется через Xcode на Mac |
+
+Обе версии используют общие модели данных, историю, настройки генерации и
+`ModelService`, но имеют отдельные нативные интерфейсы: трёхколоночный desktop UI
+на macOS и `NavigationStack`, sheets и safe-area composer на iPhone/iPad.
 
 ## Что уже работает
 
@@ -60,6 +104,8 @@ Private Cloud Compute в публичной ad-hoc сборке недоступ
   `PrivateCloudComputeLanguageModel.Error`;
 - нативный SwiftUI-интерфейс macOS 27: sidebar чатов, компактный toolbar
   popover, полный Inspector и Liquid Glass composer;
+- отдельный нативный SwiftUI-интерфейс iOS/iPadOS 27: `NavigationStack`,
+  мобильные sheets, safe-area composer и Liquid Glass controls;
 - нативный composer в обычной layout-иерархии без ручного позиционирования;
 - проекты, закрепление и переименование чатов;
 - welcome-экран с рабочими карточками для документов, Vision, guided
@@ -80,7 +126,7 @@ Private Cloud Compute в публичной ad-hoc сборке недоступ
 
 | Режим | Чья модель | Где работает | Контекст | Важные ограничения |
 |---|---|---|---:|---|
-| `SystemLanguageModel` | Apple | На устройстве | Определяется в runtime через `contextSize` и зависит от версии системной модели | Apple Intelligence, поддерживаемый Mac, guardrails, без управляемого reasoning |
+| `SystemLanguageModel` | Apple | На Mac, iPhone или iPad | Определяется в runtime через `contextSize` и зависит от версии системной модели | Apple Intelligence, совместимое устройство, guardrails, без управляемого reasoning |
 | `PrivateCloudComputeLanguageModel` | Apple | Серверы PCC | 32K | Managed entitlement, подходящий аккаунт/регион, сеть, дневная квота |
 
 У Apple не «набор выбираемых локальных чат-моделей» в привычном смысле.
@@ -214,10 +260,13 @@ App Entities, App Schema domains, Spotlight index и view annotations.
 
 Требования:
 
-- macOS 27 beta;
+- macOS 27 beta и/или iOS 27 beta;
 - Xcode 27 beta;
 - Mac с Apple silicon;
-- включённая Apple Intelligence для `SystemLanguageModel`.
+- включённая Apple Intelligence для `SystemLanguageModel`;
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen) для генерации iOS-проекта.
+
+### macOS
 
 ```bash
 git clone https://github.com/pavelrakcheev/FoundationChat.git
@@ -250,6 +299,42 @@ FOUNDATIONCHAT_BUILD_CONFIGURATION=release ./script/build_and_run.sh --build
 Старый `./build_and_run.sh` оставлен как совместимый wrapper. В Codex Desktop
 кнопка Run настроена через `.codex/environments/environment.toml`.
 
+### iPhone и iPad
+
+```bash
+brew install xcodegen
+./script/build_ios.sh build
+./script/build_ios.sh test
+./script/build_ios.sh open
+```
+
+По умолчанию скрипт использует Xcode Beta и симулятор `iPhone 17 Pro` с
+iOS 27. Путь к Xcode можно изменить через `DEVELOPER_DIR`, а destination — через
+`FOUNDATIONCHAT_IOS_DESTINATION`.
+
+В открытом `FoundationChat.xcodeproj` выберите scheme
+`FoundationChat-iOS`, затем симулятор или подключённый iPhone. Для физического
+устройства включите automatic signing и назначьте свою Development Team:
+проект намеренно не хранит чужие сертификаты и provisioning profiles.
+Мобильный target намеренно не поддерживает запуск в режиме Designed for
+iPhone/iPad на Mac, чтобы его нельзя было перепутать с полноценным macOS
+интерфейсом. Desktop-версия запускается через `./script/build_and_run.sh`.
+
+Local на iPhone — это системная on-device модель Apple, а не удалённый запуск
+модели с Mac. Доступность проверяется в runtime. На реальном устройстве она
+зависит от поддержки Apple Intelligence, настроек языка/региона и состояния
+загрузки модели. Анализ вложений и остальные общие функции работают на iOS;
+macOS-only system tools Foundation Models скрыты там, где текущий iOS SDK их
+не предоставляет.
+
+Если iPhone показывает «Не удаётся проверить приложение», доверия разработчику
+недостаточно: устройству нужен доступ к `https://ppq.apple.com` для онлайн-
+проверки development-сертификата. Временно отключите VPN, DNS-фильтрацию,
+Private Relay и блокировщики, либо смените Wi‑Fi на мобильную сеть, затем
+повторите «Проверить приложение» в **Настройки → Основные → VPN и управление
+устройством**. У бесплатного Personal Team provisioning profile действует
+семь дней, после чего приложение нужно заново собрать и установить из Xcode.
+
 ## Структура
 
 ```text
@@ -261,7 +346,7 @@ Sources/FoundationChat/
 │   ├── AppIntentsService.swift
 │   └── ModelService.swift
 ├── ViewModels/ChatViewModel.swift
-└── Views/
+├── Views/
     ├── ComposerView.swift
     ├── ContentView.swift
     ├── QuickSettingsPopover.swift
@@ -270,6 +355,16 @@ Sources/FoundationChat/
     ├── WelcomeView.swift
     ├── MessageBubbleView.swift
     └── SettingsView.swift
+└── iOS/
+    ├── FoundationChatMobileApp.swift
+    ├── MobileRootView.swift
+    ├── MobileChatView.swift
+    ├── MobileComposerView.swift
+    ├── MobileMessageView.swift
+    └── MobileSettingsView.swift
+
+project.yml                  # XcodeGen-конфигурация iOS/iPadOS target
+Tests/FoundationChatUITests/ # мобильные end-to-end UI-тесты
 ```
 
 ## Авторы

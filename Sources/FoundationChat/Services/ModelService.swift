@@ -24,7 +24,7 @@ struct ModelService {
                 return ModelReadiness(
                     state: .ready,
                     detail: model.supportsLocale()
-                        ? "Готова · данные остаются на Mac"
+                        ? Self.localPrivacyDetail
                         : "Готова · текущий язык официально не поддерживается",
                     contextLimit: limit,
                     supportsVision: featureValues.0,
@@ -33,12 +33,12 @@ struct ModelService {
                 )
             case .unavailable(.deviceNotEligible):
                 return unavailable(
-                    type, detail: "Этот Mac не поддерживает Apple Intelligence.",
+                    type, detail: Self.ineligibleDeviceDetail,
                     contextLimit: limit, capabilities: featureValues
                 )
             case .unavailable(.appleIntelligenceNotEnabled):
                 return setup(
-                    type, detail: "Включите Apple Intelligence в Системных настройках.",
+                    type, detail: Self.enableAppleIntelligenceDetail,
                     contextLimit: limit, capabilities: featureValues
                 )
             case .unavailable(.modelNotReady):
@@ -129,9 +129,11 @@ struct ModelService {
             history: history
         )
         var tools: [any Tool] = []
+#if os(macOS)
         if settings.enableOCR { tools.append(OCRTool()) }
         if settings.enableBarcodeReader { tools.append(BarcodeReaderTool()) }
         if settings.enableSpotlightRAG { tools.append(SpotlightSearchTool()) }
+#endif
 
         switch type {
         case .systemOnDevice:
@@ -236,6 +238,7 @@ struct ModelService {
     }
 
     static var hasPCCEntitlement: Bool {
+#if os(macOS)
         guard let task = SecTaskCreateFromSelf(nil),
               let value = SecTaskCopyValueForEntitlement(
                 task,
@@ -246,5 +249,32 @@ struct ModelService {
             return false
         }
         return (value as? Bool) == true
+#else
+        false
+#endif
+    }
+
+    private static var localPrivacyDetail: String {
+#if os(iOS)
+        "Готова · данные остаются на iPhone"
+#else
+        "Готова · данные остаются на Mac"
+#endif
+    }
+
+    private static var ineligibleDeviceDetail: String {
+#if os(iOS)
+        "Этот iPhone или iPad не поддерживает Apple Intelligence."
+#else
+        "Этот Mac не поддерживает Apple Intelligence."
+#endif
+    }
+
+    private static var enableAppleIntelligenceDetail: String {
+#if os(iOS)
+        "Включите Apple Intelligence в Настройках iPhone."
+#else
+        "Включите Apple Intelligence в Системных настройках."
+#endif
     }
 }

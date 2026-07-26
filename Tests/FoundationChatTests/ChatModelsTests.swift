@@ -103,4 +103,30 @@ struct ChatModelsTests {
         #expect(state.promptPresets.contains(where: { $0.id == PromptPreset.siriCommunity.id }))
         #expect(ModelType.allCases.count == 2)
     }
+
+    @Test
+    func markdownParserPreservesBlockStructure() {
+        let markdown = """
+        Вот общая информация о попугаях:
+
+        ## Что такое попугаи?
+        Попугаи — это необычные птицы.
+
+        | Название | Тип |
+        | --- | --- |
+        | Ара | Крупный |
+        """
+
+        let blocks = MarkdownDocumentParser.parse(markdown)
+
+        #expect(blocks == [
+            .paragraph("Вот общая информация о попугаях:"),
+            .heading(level: 2, content: "Что такое попугаи?"),
+            .paragraph("Попугаи — это необычные птицы."),
+            .table([
+                ["Название", "Тип"],
+                ["Ара", "Крупный"]
+            ])
+        ])
+    }
 }

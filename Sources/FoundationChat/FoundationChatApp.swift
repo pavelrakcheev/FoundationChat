@@ -1,5 +1,6 @@
 import SwiftUI
 
+#if os(macOS)
 @main
 struct FoundationChatApp: App {
     @State private var viewModel = ChatViewModel()
@@ -51,3 +52,4 @@ struct FoundationChatApp: App {
         .windowResizability(.contentSize)
     }
 }
+#endif

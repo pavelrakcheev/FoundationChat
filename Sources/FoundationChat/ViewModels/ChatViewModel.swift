@@ -20,6 +20,7 @@ final class ChatViewModel {
     private(set) var toolEvents: [ToolEvent] = []
     private(set) var evaluationResults: [EvaluationResult] = []
     private(set) var isEvaluating = false
+    private(set) var exportedFileURL: URL?
     var selectedConversationID: UUID? {
         didSet {
             syncModelWithSelectedConversation()
@@ -427,6 +428,7 @@ final class ChatViewModel {
             sentiment: positive ? .positive : .negative,
             desiredResponseText: positive ? nil : message.content
         )
+#if os(macOS)
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "FoundationChat-feedback-\(message.id.uuidString).attachment"
         panel.prompt = "Экспортировать"
@@ -436,6 +438,12 @@ final class ChatViewModel {
         } catch {
             errorMessage = "Не удалось сохранить feedback attachment: \(error.localizedDescription)"
         }
+#else
+        export(
+            data,
+            named: "FoundationChat-feedback-\(message.id.uuidString).attachment"
+        )
+#endif
     }
 
     func runEvaluationSuite() async {
@@ -514,22 +522,27 @@ final class ChatViewModel {
             },
             "privacy": "Prompts, responses, file paths and attachment contents are intentionally omitted."
         ]
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "FoundationChat-diagnostics.json"
-        panel.prompt = "Экспортировать"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let data = try JSONSerialization.data(
                 withJSONObject: payload,
                 options: [.prettyPrinted, .sortedKeys]
             )
+#if os(macOS)
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = "FoundationChat-diagnostics.json"
+            panel.prompt = "Экспортировать"
+            guard panel.runModal() == .OK, let url = panel.url else { return }
             try data.write(to: url, options: .atomic)
+#else
+            export(data, named: "FoundationChat-diagnostics.json")
+#endif
         } catch {
             errorMessage = "Не удалось экспортировать диагностику: \(error.localizedDescription)"
         }
     }
 
     func openFoundationModelsInstruments() {
+#if os(macOS)
         let candidates = [
             "/Applications/Xcode-beta.app/Contents/Applications/Instruments.app",
             "/Applications/Xcode.app/Contents/Applications/Instruments.app"
@@ -543,6 +556,9 @@ final class ChatViewModel {
             at: URL(fileURLWithPath: path),
             configuration: NSWorkspace.OpenConfiguration()
         )
+#else
+        errorMessage = "Foundation Models Instruments запускается из Xcode на Mac."
+#endif
     }
 
     func resetInstructions() { settings.systemInstructions = GenerationSettings.defaultInstructions }
@@ -816,4 +832,16 @@ final class ChatViewModel {
         }
         Task { await SpotlightIndexer.shared.index(spotlightItems) }
     }
+
+#if os(iOS)
+    private func export(_ data: Data, named name: String) {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+        do {
+            try data.write(to: url, options: .atomic)
+            exportedFileURL = url
+        } catch {
+            errorMessage = "Не удалось подготовить файл: \(error.localizedDescription)"
+        }
+    }
+#endif
 }

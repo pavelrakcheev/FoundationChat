@@ -61,7 +61,7 @@ struct WelcomeView: View {
         .font(.callout)
         .padding(.horizontal, 15)
         .padding(.vertical, 10)
-        .glassEffect(.regular, in: .capsule)
+        .background(.regularMaterial, in: .capsule)
     }
 
     private var capabilities: some View {
@@ -103,7 +103,7 @@ struct WelcomeView: View {
                     .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
-                .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
+                .background(.regularMaterial, in: .rect(cornerRadius: 16))
                 .help("Подставить пример запроса")
             }
         }

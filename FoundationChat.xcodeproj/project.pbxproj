@@ -1,0 +1,523 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		198AF90832FB3CB5CD24A400 /* FoundationChatUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE286BEABD7E60FC880C4FF9 /* FoundationChatUITests.swift */; };
+		36C3DA2F9CF659F278F37674 /* ModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3648E6FAC5686247B2D88973 /* ModelService.swift */; };
+		3AE4294CE980AA0D634984BC /* SpotlightIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A46C45EDC3D0EE389711EE0E /* SpotlightIndexer.swift */; };
+		3AE942C79CE7E8AA135A7E3C /* FoundationChatMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CFA161B6CBA1599FA118831 /* FoundationChatMobileApp.swift */; };
+		479F9ED0F0E7D54613DB2F43 /* MobileChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0070D93A93079EE498F8D24 /* MobileChatView.swift */; };
+		48B03094F31627CE1FC7429D /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497A7970ACD95126F323BAB7 /* ChatViewModel.swift */; };
+		5632D5FCDC2F10176A39D946 /* MobileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91E74AFDCE3CDA8A3A04BB7 /* MobileSettingsView.swift */; };
+		603E5BE35E2906BA1C8D8871 /* MobileMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826547F751921418850C8A80 /* MobileMessageView.swift */; };
+		668A198B32E850AC18BBB7FF /* MobileRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8804D3692396FD0C5CC0300 /* MobileRootView.swift */; };
+		6FF1537C47B3BECB4E6BD6B9 /* AppStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42A6E14F94973879372EBC5 /* AppStateStore.swift */; };
+		84AD883FC9FCF1AE8958BDAA /* AppIntentsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA977F2E8170B81B20EE727 /* AppIntentsService.swift */; };
+		ADD91FF2B35948BA886B7E1D /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 08212191A616EE425B52C85E /* AppIcon.icon */; };
+		AE9A0153C082D2C85C440787 /* MobileComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 949D0EC6A559D8B0D4F6DE8B /* MobileComposerView.swift */; };
+		DED8F5B964AAD1C4BBEAB2D2 /* ChatModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 510FE044BD57FF44ABFFD8CD /* ChatModels.swift */; };
+		E0870A3680A5559257370540 /* MarkdownDocumentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5D3BD4D28F6FEF132C3610 /* MarkdownDocumentParser.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E561087FDE892ADB734DD648 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F459D4FB39A28416B89D447F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 655194496559F62449E54792;
+			remoteInfo = "FoundationChat-iOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		08212191A616EE425B52C85E /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		3648E6FAC5686247B2D88973 /* ModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelService.swift; sourceTree = "<group>"; };
+		3A5D3BD4D28F6FEF132C3610 /* MarkdownDocumentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownDocumentParser.swift; sourceTree = "<group>"; };
+		497A7970ACD95126F323BAB7 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		510FE044BD57FF44ABFFD8CD /* ChatModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModels.swift; sourceTree = "<group>"; };
+		5C1BBBD3A0A6B09BFC970131 /* FoundationChat-iOSUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "FoundationChat-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		635F020AB842D9B45FF337F1 /* FoundationChat-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "FoundationChat-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7CFA161B6CBA1599FA118831 /* FoundationChatMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationChatMobileApp.swift; sourceTree = "<group>"; };
+		826547F751921418850C8A80 /* MobileMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMessageView.swift; sourceTree = "<group>"; };
+		949D0EC6A559D8B0D4F6DE8B /* MobileComposerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileComposerView.swift; sourceTree = "<group>"; };
+		A46C45EDC3D0EE389711EE0E /* SpotlightIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightIndexer.swift; sourceTree = "<group>"; };
+		B42A6E14F94973879372EBC5 /* AppStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateStore.swift; sourceTree = "<group>"; };
+		B8804D3692396FD0C5CC0300 /* MobileRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileRootView.swift; sourceTree = "<group>"; };
+		B91E74AFDCE3CDA8A3A04BB7 /* MobileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsView.swift; sourceTree = "<group>"; };
+		CE286BEABD7E60FC880C4FF9 /* FoundationChatUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationChatUITests.swift; sourceTree = "<group>"; };
+		D0070D93A93079EE498F8D24 /* MobileChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileChatView.swift; sourceTree = "<group>"; };
+		FFA977F2E8170B81B20EE727 /* AppIntentsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		06A003C8681F27BBD00F158E /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				7CFA161B6CBA1599FA118831 /* FoundationChatMobileApp.swift */,
+				D0070D93A93079EE498F8D24 /* MobileChatView.swift */,
+				949D0EC6A559D8B0D4F6DE8B /* MobileComposerView.swift */,
+				826547F751921418850C8A80 /* MobileMessageView.swift */,
+				B8804D3692396FD0C5CC0300 /* MobileRootView.swift */,
+				B91E74AFDCE3CDA8A3A04BB7 /* MobileSettingsView.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		3F68D387716DA4D57723CB2E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				635F020AB842D9B45FF337F1 /* FoundationChat-iOS.app */,
+				5C1BBBD3A0A6B09BFC970131 /* FoundationChat-iOSUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4B953A5F0557FE7CD7DCDC4E /* FoundationChat */ = {
+			isa = PBXGroup;
+			children = (
+				06A003C8681F27BBD00F158E /* iOS */,
+				7D1591727B9337B3AFC6785A /* Models */,
+				5D84F961A4FADF7F207DEAB7 /* Services */,
+				7CADB6F78AB69B8A84FFCD45 /* Support */,
+				88FDB53366D4B6185CD54691 /* ViewModels */,
+			);
+			name = FoundationChat;
+			path = Sources/FoundationChat;
+			sourceTree = "<group>";
+		};
+		5AC76FDDC0568C4B4CED1399 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				08212191A616EE425B52C85E /* AppIcon.icon */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		5D84F961A4FADF7F207DEAB7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				FFA977F2E8170B81B20EE727 /* AppIntentsService.swift */,
+				B42A6E14F94973879372EBC5 /* AppStateStore.swift */,
+				3648E6FAC5686247B2D88973 /* ModelService.swift */,
+				A46C45EDC3D0EE389711EE0E /* SpotlightIndexer.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		6AF1B2B7AF3A187D0B99356D /* FoundationChatUITests */ = {
+			isa = PBXGroup;
+			children = (
+				CE286BEABD7E60FC880C4FF9 /* FoundationChatUITests.swift */,
+			);
+			name = FoundationChatUITests;
+			path = Tests/FoundationChatUITests;
+			sourceTree = "<group>";
+		};
+		7CADB6F78AB69B8A84FFCD45 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				3A5D3BD4D28F6FEF132C3610 /* MarkdownDocumentParser.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		7D1591727B9337B3AFC6785A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				510FE044BD57FF44ABFFD8CD /* ChatModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		88FDB53366D4B6185CD54691 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				497A7970ACD95126F323BAB7 /* ChatViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		BECA627C5902DA344DBAB105 = {
+			isa = PBXGroup;
+			children = (
+				4B953A5F0557FE7CD7DCDC4E /* FoundationChat */,
+				6AF1B2B7AF3A187D0B99356D /* FoundationChatUITests */,
+				5AC76FDDC0568C4B4CED1399 /* Resources */,
+				3F68D387716DA4D57723CB2E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		655194496559F62449E54792 /* FoundationChat-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8DBE947D9DE57232A4E2BBDA /* Build configuration list for PBXNativeTarget "FoundationChat-iOS" */;
+			buildPhases = (
+				4E59CA91EBC9EEF30F443FE5 /* Sources */,
+				AE670A0481E7B407B6D62B16 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "FoundationChat-iOS";
+			packageProductDependencies = (
+			);
+			productName = "FoundationChat-iOS";
+			productReference = 635F020AB842D9B45FF337F1 /* FoundationChat-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6D9DA23DE0413333101749E2 /* FoundationChat-iOSUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 603E201A106001310E14601F /* Build configuration list for PBXNativeTarget "FoundationChat-iOSUITests" */;
+			buildPhases = (
+				9BFF70FF853278956B7B763B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				452D7F935239BAF8CC564173 /* PBXTargetDependency */,
+			);
+			name = "FoundationChat-iOSUITests";
+			packageProductDependencies = (
+			);
+			productName = "FoundationChat-iOSUITests";
+			productReference = 5C1BBBD3A0A6B09BFC970131 /* FoundationChat-iOSUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F459D4FB39A28416B89D447F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					655194496559F62449E54792 = {
+						DevelopmentTeam = DHHWSY2LVR;
+						ProvisioningStyle = Automatic;
+					};
+					6D9DA23DE0413333101749E2 = {
+						DevelopmentTeam = DHHWSY2LVR;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 655194496559F62449E54792;
+					};
+				};
+			};
+			buildConfigurationList = 116F0481AB4E123BE0352F61 /* Build configuration list for PBXProject "FoundationChat" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = BECA627C5902DA344DBAB105;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3F68D387716DA4D57723CB2E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				655194496559F62449E54792 /* FoundationChat-iOS */,
+				6D9DA23DE0413333101749E2 /* FoundationChat-iOSUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AE670A0481E7B407B6D62B16 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADD91FF2B35948BA886B7E1D /* AppIcon.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E59CA91EBC9EEF30F443FE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84AD883FC9FCF1AE8958BDAA /* AppIntentsService.swift in Sources */,
+				6FF1537C47B3BECB4E6BD6B9 /* AppStateStore.swift in Sources */,
+				DED8F5B964AAD1C4BBEAB2D2 /* ChatModels.swift in Sources */,
+				48B03094F31627CE1FC7429D /* ChatViewModel.swift in Sources */,
+				3AE942C79CE7E8AA135A7E3C /* FoundationChatMobileApp.swift in Sources */,
+				E0870A3680A5559257370540 /* MarkdownDocumentParser.swift in Sources */,
+				479F9ED0F0E7D54613DB2F43 /* MobileChatView.swift in Sources */,
+				AE9A0153C082D2C85C440787 /* MobileComposerView.swift in Sources */,
+				603E5BE35E2906BA1C8D8871 /* MobileMessageView.swift in Sources */,
+				668A198B32E850AC18BBB7FF /* MobileRootView.swift in Sources */,
+				5632D5FCDC2F10176A39D946 /* MobileSettingsView.swift in Sources */,
+				36C3DA2F9CF659F278F37674 /* ModelService.swift in Sources */,
+				3AE4294CE980AA0D634984BC /* SpotlightIndexer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9BFF70FF853278956B7B763B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				198AF90832FB3CB5CD24A400 /* FoundationChatUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		452D7F935239BAF8CC564173 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 655194496559F62449E54792 /* FoundationChat-iOS */;
+			targetProxy = E561087FDE892ADB734DD648 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0B04A3734580D24DC656A5B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]" = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Resources/Info-iOS.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.pavelrakcheev.FoundationChat.iOS;
+				PRODUCT_NAME = FoundationChat;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		298C856571C940FBAB5F9530 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]" = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.pavelrakcheev.FoundationChat.iOSUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "FoundationChat-iOS";
+			};
+			name = Debug;
+		};
+		72691CBDCC60D439BADA4755 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = DHHWSY2LVR;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		8D7C86A0D166FD16D5168AF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = DHHWSY2LVR;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A53C1060BB7D42E1DA214BEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]" = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.pavelrakcheev.FoundationChat.iOSUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "FoundationChat-iOS";
+			};
+			name = Release;
+		};
+		F7B94F9E29C6EEC691DC2E8C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]" = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Resources/Info-iOS.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.pavelrakcheev.FoundationChat.iOS;
+				PRODUCT_NAME = FoundationChat;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		116F0481AB4E123BE0352F61 /* Build configuration list for PBXProject "FoundationChat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8D7C86A0D166FD16D5168AF6 /* Debug */,
+				72691CBDCC60D439BADA4755 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		603E201A106001310E14601F /* Build configuration list for PBXNativeTarget "FoundationChat-iOSUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				298C856571C940FBAB5F9530 /* Debug */,
+				A53C1060BB7D42E1DA214BEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8DBE947D9DE57232A4E2BBDA /* Build configuration list for PBXNativeTarget "FoundationChat-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F7B94F9E29C6EEC691DC2E8C /* Debug */,
+				0B04A3734580D24DC656A5B0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F459D4FB39A28416B89D447F /* Project object */;
+}

@@ -2,8 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(ChatViewModel.self) private var viewModel
-    @State private var showQuickSettings = false
-    @State private var showFullInspector = false
+    @State private var showInspector = false
     @State private var inspectorSection: InspectorSection = .generation
 
     var body: some View {
@@ -13,7 +12,7 @@ struct ContentView: View {
         } detail: {
             ChatView()
                 .navigationTitle(viewModel.selectedConversation?.title ?? "Foundation Chat")
-                .inspector(isPresented: $showFullInspector) {
+                .inspector(isPresented: $showInspector) {
                     SettingsInspectorView(selection: $inspectorSection)
                         .inspectorColumnWidth(min: 350, ideal: 380, max: 460)
                 }
@@ -26,7 +25,7 @@ struct ContentView: View {
                     Label("Новый чат", systemImage: "square.and.pencil")
                         .labelStyle(.iconOnly)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.circle)
                 .keyboardShortcut("n", modifiers: .command)
                 .help("Новый чат (⌘N)")
@@ -34,28 +33,12 @@ struct ContentView: View {
 
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    if showFullInspector {
-                        showFullInspector = false
-                    }
-                    showQuickSettings.toggle()
+                    showInspector.toggle()
                 } label: {
-                    Label("Параметры", systemImage: "sidebar.trailing")
+                    Label("Параметры", systemImage: showInspector ? "sidebar.right" : "sidebar.trailing")
                 }
                 .keyboardShortcut("i", modifiers: [.command, .option])
-                .help("Быстрые параметры (⌥⌘I)")
-                .popover(
-                    isPresented: $showQuickSettings,
-                    attachmentAnchor: .rect(.bounds),
-                    arrowEdge: .top
-                ) {
-                    QuickSettingsPopover(
-                        selection: $inspectorSection,
-                        fullInspectorPresented: $showFullInspector,
-                        closePopover: {
-                            showQuickSettings = false
-                        }
-                    )
-                }
+                .help("Параметры (⌥⌘I)")
             }
         }
         .alert(
