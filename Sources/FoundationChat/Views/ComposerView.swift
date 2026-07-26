@@ -18,18 +18,39 @@ struct ComposerView: View {
         VStack(alignment: .leading, spacing: 8) {
             attachmentStrip
 
-            HStack(alignment: .bottom, spacing: 9) {
+            HStack(alignment: .center, spacing: 10) {
                 attachmentButton
-                messageField
-                modelMenu
-                sendButton
+
+                inputField
+
+                if viewModel.isProcessing {
+                    Button {
+                        viewModel.cancelGeneration()
+                    } label: {
+                        Image(systemName: "stop.fill")
+                            .font(.body.weight(.medium))
+                    }
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .controlSize(.extraLarge)
+                    .help("Остановить генерацию")
+                } else {
+                    Button(action: send) {
+                        Image(systemName: "arrow.up")
+                            .font(.body.weight(.medium))
+                    }
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .controlSize(.extraLarge)
+                    .disabled(!canSend)
+                    .help("Отправить")
+                }
             }
         }
-        .padding(10)
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 18))
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 12)
         .padding(.top, 8)
         .padding(.bottom, 12)
+        .background(.clear)
     }
 
     @ViewBuilder
@@ -53,7 +74,7 @@ struct ComposerView: View {
                         .font(.caption)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 5)
-                        .background(.quinary, in: .capsule)
+                        .glassEffect(.regular, in: .capsule)
                     }
                 }
             }
@@ -64,32 +85,38 @@ struct ComposerView: View {
     private var attachmentButton: some View {
         Button(action: chooseFiles) {
             Image(systemName: "plus")
-                .frame(width: 17, height: 17)
+                .font(.body.weight(.medium))
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .controlSize(.large)
+        .controlSize(.extraLarge)
         .disabled(viewModel.isProcessing)
         .help("Прикрепить изображение или документ")
     }
 
-    private var messageField: some View {
-        TextField(
-            "Сообщение для \(viewModel.modelType.shortName)",
-            text: $text,
-            axis: .vertical
-        )
-        .textFieldStyle(.plain)
-        .font(.body)
-        .focused(isFocused)
-        .lineLimit(1...6)
-        .padding(.vertical, 7)
-        .onSubmit(send)
-        .disabled(viewModel.isProcessing)
-        .accessibilityLabel("Сообщение")
+    private var inputField: some View {
+        HStack(spacing: 0) {
+            TextField(
+                "Ask Apple AI",
+                text: $text,
+                axis: .vertical
+            )
+            .textFieldStyle(.plain)
+            .font(.body)
+            .focused(isFocused)
+            .lineLimit(1...6)
+            .onSubmit(send)
+            .disabled(viewModel.isProcessing)
+            .accessibilityLabel("Сообщение")
+
+            modelPicker
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .glassEffect(.regular, in: .rect(cornerRadius: 22))
     }
 
-    private var modelMenu: some View {
+    private var modelPicker: some View {
         Menu {
             ForEach(ModelType.allCases) { type in
                 Button {
@@ -102,40 +129,23 @@ struct ComposerView: View {
                 }
             }
         } label: {
-            Label(viewModel.modelType.shortName, systemImage: viewModel.modelType.iconName)
-                .font(.callout)
+            HStack(spacing: 3) {
+                Image(systemName: viewModel.modelType.iconName)
+                    .font(.caption)
+                Text(viewModel.modelType.shortName)
+                    .font(.caption.weight(.medium))
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption2)
+            }
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .glassEffect(.regular, in: .capsule)
         }
         .menuStyle(.borderlessButton)
-        .fixedSize(horizontal: true, vertical: false)
+        .fixedSize()
         .disabled(viewModel.isProcessing)
-        .help("Выбрать модель Apple: Local или Cloud")
-    }
-
-    @ViewBuilder
-    private var sendButton: some View {
-        if viewModel.isProcessing {
-            Button {
-                viewModel.cancelGeneration()
-            } label: {
-                Image(systemName: "stop.fill")
-                    .frame(width: 17, height: 17)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.red)
-            .buttonBorderShape(.circle)
-            .controlSize(.large)
-            .help("Остановить генерацию")
-        } else {
-            Button(action: send) {
-                Image(systemName: "arrow.up")
-                    .frame(width: 17, height: 17)
-            }
-            .buttonStyle(.glassProminent)
-            .buttonBorderShape(.circle)
-            .controlSize(.large)
-            .disabled(!canSend)
-            .help("Отправить")
-        }
+        .help("Выбрать модель: Local или Cloud")
     }
 
     private func chooseFiles() {

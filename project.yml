@@ -1,0 +1,65 @@
+name: FoundationChat
+options:
+  bundleIdPrefix: dev.pavelrakcheev
+  deploymentTarget:
+    iOS: "27.0"
+  xcodeVersion: "27.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: DHHWSY2LVR
+    CODE_SIGN_STYLE: Automatic
+targets:
+  FoundationChat-iOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "27.0"
+    sources:
+      - path: Sources/FoundationChat
+        excludes:
+          - FoundationChatApp.swift
+          - Views
+      - path: Resources/AppIcon.icon
+        buildPhase: resources
+    info:
+      path: Resources/Info-iOS.plist
+      properties:
+        CFBundleDisplayName: Foundation Chat
+        CFBundleShortVersionString: "3.2"
+        CFBundleVersion: "5"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.pavelrakcheev.FoundationChat.iOS
+        PRODUCT_NAME: FoundationChat
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": NO
+    scheme:
+      testTargets:
+        - FoundationChat-iOSUITests
+  FoundationChat-iOSUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "27.0"
+    sources:
+      - path: Tests/FoundationChatUITests
+    dependencies:
+      - target: FoundationChat-iOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.pavelrakcheev.FoundationChat.iOSUITests
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": NO

@@ -1,5 +1,9 @@
 import Foundation
+#if os(macOS)
 import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
 import PDFKit
 
 struct PersistedAppState: Codable {
@@ -72,6 +76,14 @@ struct AttachmentStore {
     private let fileManager = FileManager.default
 
     func importFile(_ source: URL) throws -> ChatAttachment {
+#if os(iOS)
+        let accessedSecurityScope = source.startAccessingSecurityScopedResource()
+        defer {
+            if accessedSecurityScope {
+                source.stopAccessingSecurityScopedResource()
+            }
+        }
+#endif
         let directory = try attachmentDirectory()
         let target = directory
             .appendingPathComponent(UUID().uuidString)

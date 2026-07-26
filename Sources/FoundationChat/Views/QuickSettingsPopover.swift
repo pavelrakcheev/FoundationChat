@@ -6,8 +6,6 @@ struct QuickSettingsPopover: View {
     @Binding var fullInspectorPresented: Bool
     let closePopover: () -> Void
 
-    @State private var showAdvanced = false
-
     var body: some View {
         @Bindable var viewModel = viewModel
 
@@ -16,8 +14,7 @@ struct QuickSettingsPopover: View {
 
             Picker("Раздел параметров", selection: $selection) {
                 ForEach(InspectorSection.allCases) { section in
-                    Text(section.rawValue)
-                        .tag(section)
+                    Text(section.rawValue).tag(section)
                 }
             }
             .pickerStyle(.segmented)
@@ -30,11 +27,11 @@ struct QuickSettingsPopover: View {
             Group {
                 switch selection {
                 case .generation:
-                    responseSettings(settings: $viewModel.settings)
+                    generationContent(settings: $viewModel.settings)
                 case .instructions:
-                    instructionSettings
+                    instructionContent
                 case .models:
-                    modelSettings
+                    modelContent
                 }
             }
             .padding(14)
@@ -69,8 +66,8 @@ struct QuickSettingsPopover: View {
 
                 Text(
                     "\(viewModel.modelType.shortName) · "
-                        + "\(viewModel.contextInfo.usedTokens.formatted()) / "
-                        + viewModel.contextInfo.contextLimit.formatted()
+                    + "\(viewModel.contextInfo.usedTokens.formatted()) / "
+                    + viewModel.contextInfo.contextLimit.formatted()
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -85,9 +82,7 @@ struct QuickSettingsPopover: View {
                 }
                 Divider()
                 Button("Проверить модель", systemImage: "arrow.clockwise") {
-                    Task {
-                        await viewModel.refreshAvailability(for: viewModel.modelType)
-                    }
+                    Task { await viewModel.refreshAvailability(for: viewModel.modelType) }
                 }
             } label: {
                 Image(systemName: "ellipsis")
@@ -101,25 +96,18 @@ struct QuickSettingsPopover: View {
         .padding(.bottom, 12)
     }
 
-    private func responseSettings(
+    private func generationContent(
         settings: Binding<GenerationSettings>
     ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             LabeledContent("Случайность") {
-                Text(
-                    settings.wrappedValue.temperature.formatted(
-                        .number.precision(.fractionLength(1))
-                    )
-                )
+                Text(settings.wrappedValue.temperature,
+                     format: .number.precision(.fractionLength(1)))
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
             }
 
-            Slider(
-                value: settings.temperature,
-                in: 0...2,
-                step: 0.1
-            )
+            Slider(value: settings.temperature, in: 0...2, step: 0.1)
 
             HStack {
                 Text("Точнее")
@@ -148,55 +136,42 @@ struct QuickSettingsPopover: View {
 
             Divider()
 
-            Toggle("Показывать скорость", isOn: settings.showTokenSpeed)
+            GroupBox {
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Показывать скорость", isOn: settings.showTokenSpeed)
 
-            Divider()
+                    if viewModel.currentReadiness.supportsReasoning {
+                        Picker("Рассуждение", selection: settings.reasoningLevel) {
+                            ForEach(GenerationSettings.ReasoningLevel.allCases) { level in
+                                Text(level.displayName).tag(level)
+                            }
+                        }
+                        .pickerStyle(.menu)
 
-            DisclosureGroup(isExpanded: $showAdvanced) {
-                advancedSettings(settings: settings)
-                    .padding(.top, 10)
-            } label: {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Дополнительно")
-                    Text("Рассуждение, инструменты и диагностика")
+                        Toggle("Показывать ход рассуждения", isOn: settings.showReasoning)
+                    } else {
+                        Label(
+                            "Reasoning недоступен для \(viewModel.modelType.shortName)",
+                            systemImage: "info.circle"
+                        )
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
-
-    private func advancedSettings(
-        settings: Binding<GenerationSettings>
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if viewModel.currentReadiness.supportsReasoning {
-                Picker("Рассуждение", selection: settings.reasoningLevel) {
-                    ForEach(GenerationSettings.ReasoningLevel.allCases) { level in
-                        Text(level.displayName)
-                            .tag(level)
                     }
+
+                    Divider()
+
+                    Toggle("Распознавание текста", isOn: settings.enableOCR)
+                    Toggle("Штрихкоды и QR", isOn: settings.enableBarcodeReader)
+                    Toggle("Поиск Spotlight", isOn: settings.enableSpotlightRAG)
+                    Toggle("Структурированный JSON", isOn: settings.guidedGeneration)
                 }
-                .pickerStyle(.menu)
-
-                Toggle("Показывать ход рассуждения", isOn: settings.showReasoning)
-            } else {
-                Label(
-                    "Reasoning недоступен для \(viewModel.modelType.shortName)",
-                    systemImage: "info.circle"
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            } label: {
+                Label("Дополнительно", systemImage: "gearshape.2")
             }
-
-            Toggle("Распознавание текста", isOn: settings.enableOCR)
-            Toggle("Штрихкоды и QR", isOn: settings.enableBarcodeReader)
-            Toggle("Поиск Spotlight", isOn: settings.enableSpotlightRAG)
-            Toggle("Структурированный JSON", isOn: settings.guidedGeneration)
         }
     }
 
-    private var instructionSettings: some View {
+    private var instructionContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Профиль")
                 .font(.caption)
@@ -243,15 +218,12 @@ struct QuickSettingsPopover: View {
         }
     }
 
-    private var modelSettings: some View {
+    private var modelContent: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Picker(
-                "Модель",
-                selection: Binding(
-                    get: { viewModel.modelType },
-                    set: { viewModel.selectModel($0) }
-                )
-            ) {
+            Picker("Модель", selection: Binding(
+                get: { viewModel.modelType },
+                set: { viewModel.selectModel($0) }
+            )) {
                 ForEach(ModelType.allCases) { type in
                     Label(type.shortName, systemImage: type.iconName)
                         .tag(type)
@@ -277,18 +249,9 @@ struct QuickSettingsPopover: View {
 
             Divider()
 
-            capabilityRow(
-                "Изображения",
-                available: viewModel.currentReadiness.supportsVision
-            )
-            capabilityRow(
-                "Структурированный ответ",
-                available: viewModel.currentReadiness.supportsGuidedGeneration
-            )
-            capabilityRow(
-                "Reasoning",
-                available: viewModel.currentReadiness.supportsReasoning
-            )
+            capabilityRow("Изображения", available: viewModel.currentReadiness.supportsVision)
+            capabilityRow("Структурированный ответ", available: viewModel.currentReadiness.supportsGuidedGeneration)
+            capabilityRow("Reasoning", available: viewModel.currentReadiness.supportsReasoning)
         }
     }
 
@@ -310,20 +273,13 @@ struct QuickSettingsPopover: View {
         }
     }
 
-    private func capabilityRow(
-        _ title: String,
-        available: Bool
-    ) -> some View {
+    private func capabilityRow(_ title: String, available: Bool) -> some View {
         HStack {
             Text(title)
             Spacer()
-            Image(
-                systemName: available
-                    ? "checkmark.circle.fill"
-                    : "minus.circle"
-            )
-            .foregroundStyle(available ? .green : .secondary)
-            .accessibilityLabel(available ? "Доступно" : "Недоступно")
+            Image(systemName: available ? "checkmark.circle.fill" : "minus.circle")
+                .foregroundStyle(available ? .green : .secondary)
+                .accessibilityLabel(available ? "Доступно" : "Недоступно")
         }
     }
 

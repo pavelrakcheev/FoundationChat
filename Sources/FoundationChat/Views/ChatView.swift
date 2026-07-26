@@ -24,18 +24,14 @@ struct ChatView: View {
                         messageList
                     }
                 }
-                .padding(.bottom, 82)
 
                 ComposerView(
                     text: $inputText,
                     isFocused: $isInputFocused,
                     send: send
                 )
-                .fixedSize(horizontal: false, vertical: true)
-                .background(.bar)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
-            .clipped()
         }
         .dropDestination(for: URL.self) { urls, _ in
             viewModel.importAttachments(urls)
@@ -70,7 +66,7 @@ struct ChatView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 28)
                 .padding(.top, 18)
-                .padding(.bottom, 28)
+                .padding(.bottom, 100)
             }
             .scrollEdgeEffectStyle(.soft, for: .bottom)
             .onChange(of: messages.count) { _, _ in

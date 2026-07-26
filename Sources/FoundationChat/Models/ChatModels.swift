@@ -317,7 +317,7 @@ enum ModelType: String, Codable, Hashable, CaseIterable, Identifiable {
     var description: String {
         switch self {
         case .systemOnDevice:
-            "Системная Apple Foundation Model работает локально и офлайн."
+            "Системная Apple Foundation Model работает на устройстве и офлайн."
         case .privateCloudCompute:
             "Модель Apple в Private Cloud Compute; нужен managed entitlement."
         }
@@ -325,7 +325,12 @@ enum ModelType: String, Codable, Hashable, CaseIterable, Identifiable {
 
     var iconName: String {
         switch self {
-        case .systemOnDevice: "macbook"
+        case .systemOnDevice:
+#if os(iOS)
+            "iphone"
+#else
+            "macbook"
+#endif
         case .privateCloudCompute: "icloud"
         }
     }
